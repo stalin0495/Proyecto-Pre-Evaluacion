@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Servicio de desarrollo
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: bank-manager-view-dev
+    ports:
+      - "4200:4200"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm start
+    networks:
+      - bank-network
+
+  # Servicio de producción
+  app-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bank-manager-view-prod
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - bank-network
+
+  # Servicio opcional de base de datos (si necesitas conectar con backend)
+  # postgres:
+  #   image: postgres:15
+  #   container_name: bank-db
+  #   environment:
+  #     POSTGRES_DB: bank_manager
+  #     POSTGRES_USER: bank_user
+  #     POSTGRES_PASSWORD: bank_password
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - bank-network
+
+networks:
+  bank-network:
+    driver: bridge
+
+# volumes:
+#   postgres_data:

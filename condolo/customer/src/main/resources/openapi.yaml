@@ -1,0 +1,1099 @@
+openapi: 3.0.3
+info:
+  title: Pichincha Banking API
+  description: API para el sistema bancario de Pichincha que maneja clientes, cuentas y transacciones
+  version: 1.0.0
+  contact:
+    name: Equipo de Desarrollo Pichincha
+    email: desarrollo@pichincha.com
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo
+  - url: https://api-dev.pichincha.com
+    description: Servidor de desarrollo
+  - url: https://api.pichincha.com
+    description: Servidor de producción
+
+paths:
+  # ENDPOINTS DE CUSTOMERS
+  /v1/customers:
+    get:
+      tags:
+        - Customers
+      summary: Obtener lista de clientes
+      description: Obtiene una lista paginada de todos los clientes
+      parameters:
+        - name: page
+          in: query
+          description: Número de página (comenzando desde 0)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          description: Cantidad de elementos por página
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        '200':
+          description: Lista de clientes obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageCustomer'
+        '400':
+          description: Parámetros de consulta inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Customers
+      summary: Crear un nuevo cliente
+      description: Crea un nuevo cliente en el sistema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomerRequest'
+      responses:
+        '201':
+          description: Cliente creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '409':
+          description: La identificación ya existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/customers/{customerId}:
+    get:
+      tags:
+        - Customers
+      summary: Obtener cliente por ID
+      description: Obtiene los detalles de un cliente específico por su ID
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          description: ID único del cliente
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Cliente encontrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags:
+        - Customers
+      summary: Actualizar cliente
+      description: Actualiza parcialmente los datos de un cliente existente
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          description: ID único del cliente
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCustomerRequest'
+      responses:
+        '200':
+          description: Cliente actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Customers
+      summary: Eliminar cliente
+      description: Desactiva un cliente (eliminación lógica)
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          description: ID único del cliente
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Cliente eliminado exitosamente
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: No se puede eliminar el cliente porque tiene cuentas activas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ENDPOINTS DE ACCOUNTS
+  /v1/accounts:
+    get:
+      tags:
+        - Accounts
+      summary: Obtener lista de cuentas
+      description: Obtiene una lista paginada de todas las cuentas
+      parameters:
+        - name: page
+          in: query
+          description: Número de página (comenzando desde 0)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          description: Cantidad de elementos por página
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: customerId
+          in: query
+          description: Filtrar por ID de cliente
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Lista de cuentas obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageAccount'
+        '400':
+          description: Parámetros de consulta inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Accounts
+      summary: Crear una nueva cuenta
+      description: Crea una nueva cuenta bancaria para un cliente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAccountRequest'
+      responses:
+        '201':
+          description: Cuenta creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: El número de cuenta ya existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/accounts/{accountId}:
+    get:
+      tags:
+        - Accounts
+      summary: Obtener cuenta por ID
+      description: Obtiene los detalles de una cuenta específica por su ID
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: ID único de la cuenta
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Cuenta encontrada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '404':
+          description: Cuenta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags:
+        - Accounts
+      summary: Actualizar cuenta
+      description: Actualiza parcialmente los datos de una cuenta existente
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: ID único de la cuenta
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAccountRequest'
+      responses:
+        '200':
+          description: Cuenta actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: Cuenta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Accounts
+      summary: Eliminar cuenta
+      description: Desactiva una cuenta (eliminación lógica)
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: ID único de la cuenta
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Cuenta eliminada exitosamente
+        '404':
+          description: Cuenta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: No se puede eliminar la cuenta porque tiene transacciones pendientes o saldo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ENDPOINTS DE TRANSACTIONS
+  /v1/transactions:
+    get:
+      tags:
+        - Transactions
+      summary: Obtener lista de transacciones
+      description: Obtiene una lista paginada de transacciones
+      parameters:
+        - name: page
+          in: query
+          description: Número de página (comenzando desde 0)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          description: Cantidad de elementos por página
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: accountId
+          in: query
+          description: Filtrar por ID de cuenta
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: startDate
+          in: query
+          description: Fecha de inicio para filtrar transacciones (formato YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: Fecha de fin para filtrar transacciones (formato YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Lista de transacciones obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageTransaction'
+        '400':
+          description: Parámetros de consulta inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Transactions
+      summary: Crear una nueva transacción
+      description: Crea una nueva transacción (depósito o retiro)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTransactionRequest'
+      responses:
+        '201':
+          description: Transacción creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Datos de entrada inválidos o saldo insuficiente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: Cuenta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/transactions/{transactionId}:
+    get:
+      tags:
+        - Transactions
+      summary: Obtener transacción por ID
+      description: Obtiene los detalles de una transacción específica por su ID
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          description: ID único de la transacción
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Transacción encontrada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '404':
+          description: Transacción no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ENDPOINTS DE REPORTES
+  /v1/reports/account-statement:
+    get:
+      tags:
+        - Reports
+      summary: Obtener estado de cuenta
+      description: Genera un reporte de estado de cuenta para un cliente en un rango de fechas
+      parameters:
+        - name: customerId
+          in: query
+          required: true
+          description: ID del cliente
+          schema:
+            type: string
+            format: uuid
+        - name: startDate
+          in: query
+          required: true
+          description: Fecha de inicio (formato YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          description: Fecha de fin (formato YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Estado de cuenta generado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountStatement'
+        '400':
+          description: Parámetros de consulta inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    # SCHEMAS DE CUSTOMER
+    Customer:
+      type: object
+      properties:
+        customerId:
+          type: string
+          format: uuid
+          description: ID único del cliente
+          readOnly: true
+        personId:
+          type: string
+          format: uuid
+          description: ID único de la persona
+          readOnly: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: '^[A-Za-zÑñ]+( [A-Za-zÑñ]+)*$'
+          description: Nombre completo del cliente
+          example: "Juan Carlos Pérez"
+        gender:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: '^[A-Za-zÑñ]+( [A-Za-zÑñ]+)*$'
+          description: Género del cliente
+          example: "Masculino"
+        age:
+          type: integer
+          minimum: 0
+          maximum: 255
+          description: Edad del cliente
+          example: 30
+        identification:
+          type: string
+          pattern: '^\d{10}$'
+          description: Número de identificación (10 dígitos)
+          example: "1234567890"
+        address:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: '^[A-Za-zÑñ0-9\s,.-]+$'
+          description: Dirección del cliente
+          example: "Av. Amazonas 123 y Patria"
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Número de teléfono
+          example: "0987654321"
+        status:
+          type: boolean
+          description: Estado del cliente (activo/inactivo)
+          example: true
+      required:
+        - name
+        - gender
+        - identification
+        - address
+        - phone
+
+    CreateCustomerRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: '^[A-Za-zÑñ]+( [A-Za-zÑñ]+)*$'
+          description: Nombre completo del cliente
+          example: "Juan Carlos Pérez"
+        gender:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: '^[A-Za-zÑñ]+( [A-Za-zÑñ]+)*$'
+          description: Género del cliente
+          example: "Masculino"
+        age:
+          type: integer
+          minimum: 0
+          maximum: 255
+          description: Edad del cliente
+          example: 30
+        identification:
+          type: string
+          pattern: '^\d{10}$'
+          description: Número de identificación (10 dígitos)
+          example: "1234567890"
+        address:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: '^[A-Za-zÑñ0-9\s,.-]+$'
+          description: Dirección del cliente
+          example: "Av. Amazonas 123 y Patria"
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Número de teléfono
+          example: "0987654321"
+        password:
+          type: string
+          pattern: '^(?=.*[A-ZÑ])(?=.*[a-zñ])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$'
+          description: Contraseña (8-20 caracteres, debe incluir mayúscula, minúscula, número y carácter especial)
+          example: "Password123!"
+      required:
+        - name
+        - gender
+        - identification
+        - address
+        - phone
+        - password
+
+    UpdateCustomerRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: '^[A-Za-zÑñ]+( [A-Za-zÑñ]+)*$'
+          description: Nombre completo del cliente
+          example: "Juan Carlos Pérez"
+        gender:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: '^[A-Za-zÑñ]+( [A-Za-zÑñ]+)*$'
+          description: Género del cliente
+          example: "Masculino"
+        age:
+          type: integer
+          minimum: 0
+          maximum: 255
+          description: Edad del cliente
+          example: 30
+        address:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: '^[A-Za-zÑñ0-9\s,.-]+$'
+          description: Dirección del cliente
+          example: "Av. Amazonas 123 y Patria"
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Número de teléfono
+          example: "0987654321"
+        password:
+          type: string
+          pattern: '^(?=.*[A-ZÑ])(?=.*[a-zñ])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$'
+          description: Contraseña (8-20 caracteres, debe incluir mayúscula, minúscula, número y carácter especial)
+          example: "Password123!"
+
+    # SCHEMAS DE ACCOUNT
+    Account:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+          description: ID único de la cuenta
+          readOnly: true
+        customerId:
+          type: string
+          format: uuid
+          description: ID del cliente propietario
+        accountNumber:
+          type: string
+          minLength: 1
+          maxLength: 20
+          description: Número de cuenta único
+          example: "478758"
+        accountType:
+          type: string
+          enum: ["AHORRO", "CORRIENTE"]
+          description: Tipo de cuenta
+          example: "AHORRO"
+        initialBalance:
+          type: number
+          format: decimal
+          minimum: 0
+          description: Saldo inicial de la cuenta
+          example: 1000.00
+        currentBalance:
+          type: number
+          format: decimal
+          description: Saldo actual de la cuenta
+          readOnly: true
+          example: 1500.00
+        status:
+          type: boolean
+          description: Estado de la cuenta (activa/inactiva)
+          example: true
+      required:
+        - customerId
+        - accountNumber
+        - accountType
+        - initialBalance
+
+    CreateAccountRequest:
+      type: object
+      properties:
+        customerId:
+          type: string
+          format: uuid
+          description: ID del cliente propietario
+        accountNumber:
+          type: string
+          minLength: 1
+          maxLength: 20
+          description: Número de cuenta único
+          example: "478758"
+        accountType:
+          type: string
+          enum: ["AHORRO", "CORRIENTE"]
+          description: Tipo de cuenta
+          example: "AHORRO"
+        initialBalance:
+          type: number
+          format: decimal
+          minimum: 0
+          description: Saldo inicial de la cuenta
+          example: 1000.00
+      required:
+        - customerId
+        - accountNumber
+        - accountType
+        - initialBalance
+
+    UpdateAccountRequest:
+      type: object
+      properties:
+        accountType:
+          type: string
+          enum: ["AHORRO", "CORRIENTE"]
+          description: Tipo de cuenta
+          example: "AHORRO"
+        status:
+          type: boolean
+          description: Estado de la cuenta (activa/inactiva)
+          example: true
+
+    # SCHEMAS DE TRANSACTION
+    Transaction:
+      type: object
+      properties:
+        transactionId:
+          type: string
+          format: uuid
+          description: ID único de la transacción
+          readOnly: true
+        accountId:
+          type: string
+          format: uuid
+          description: ID de la cuenta asociada
+        date:
+          type: string
+          format: date-time
+          description: Fecha y hora de la transacción
+          readOnly: true
+        transactionType:
+          type: string
+          enum: ["DEPOSITO", "RETIRO"]
+          description: Tipo de transacción
+          example: "DEPOSITO"
+        amount:
+          type: number
+          format: decimal
+          description: Monto de la transacción
+          example: 100.00
+        balance:
+          type: number
+          format: decimal
+          description: Saldo después de la transacción
+          readOnly: true
+          example: 1100.00
+      required:
+        - accountId
+        - transactionType
+        - amount
+
+    CreateTransactionRequest:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+          description: ID de la cuenta asociada
+        transactionType:
+          type: string
+          enum: ["DEPOSITO", "RETIRO"]
+          description: Tipo de transacción
+          example: "DEPOSITO"
+        amount:
+          type: number
+          format: decimal
+          minimum: 0.01
+          description: Monto de la transacción
+          example: 100.00
+      required:
+        - accountId
+        - transactionType
+        - amount
+
+    # SCHEMAS DE REPORTES
+    AccountStatement:
+      type: object
+      properties:
+        customer:
+          $ref: '#/components/schemas/Customer'
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountStatementDetail'
+        reportPeriod:
+          type: object
+          properties:
+            startDate:
+              type: string
+              format: date
+            endDate:
+              type: string
+              format: date
+
+    AccountStatementDetail:
+      type: object
+      properties:
+        account:
+          $ref: '#/components/schemas/Account'
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+
+    # SCHEMAS DE PAGINACIÓN
+    PageCustomer:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
+        page:
+          type: integer
+          description: Número de página actual
+        size:
+          type: integer
+          description: Tamaño de página
+        totalElements:
+          type: integer
+          format: int64
+          description: Total de elementos
+        totalPages:
+          type: integer
+          description: Total de páginas
+        first:
+          type: boolean
+          description: Es la primera página
+        last:
+          type: boolean
+          description: Es la última página
+
+    PageAccount:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Account'
+        page:
+          type: integer
+          description: Número de página actual
+        size:
+          type: integer
+          description: Tamaño de página
+        totalElements:
+          type: integer
+          format: int64
+          description: Total de elementos
+        totalPages:
+          type: integer
+          description: Total de páginas
+        first:
+          type: boolean
+          description: Es la primera página
+        last:
+          type: boolean
+          description: Es la última página
+
+    PageTransaction:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+        page:
+          type: integer
+          description: Número de página actual
+        size:
+          type: integer
+          description: Tamaño de página
+        totalElements:
+          type: integer
+          format: int64
+          description: Total de elementos
+        totalPages:
+          type: integer
+          description: Total de páginas
+        first:
+          type: boolean
+          description: Es la primera página
+        last:
+          type: boolean
+          description: Es la última página
+
+    # SCHEMAS DE ERROR
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp del error
+        status:
+          type: integer
+          description: Código de estado HTTP
+        error:
+          type: string
+          description: Tipo de error
+        message:
+          type: string
+          description: Mensaje de error
+        path:
+          type: string
+          description: Ruta donde ocurrió el error
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp del error
+        status:
+          type: integer
+          description: Código de estado HTTP
+        error:
+          type: string
+          description: Tipo de error
+        message:
+          type: string
+          description: Mensaje de error general
+        path:
+          type: string
+          description: Ruta donde ocurrió el error
+        validationErrors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Campo que falló la validación
+              message:
+                type: string
+                description: Mensaje de error específico del campo
+
+tags:
+  - name: Customers
+    description: Operaciones relacionadas con clientes
+  - name: Accounts
+    description: Operaciones relacionadas con cuentas bancarias
+  - name: Transactions
+    description: Operaciones relacionadas con transacciones
+  - name: Reports
+    description: Generación de reportes y estados de cuenta

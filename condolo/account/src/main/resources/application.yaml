@@ -1,0 +1,31 @@
+server:
+  port: ${SERVER_PORT}
+  servlet:
+    context-path: /account-services/api
+spring:
+  application:
+    name: account-services
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  jpa:
+    showSql: true
+    properties:
+      format_sql: false
+      hibernate:
+        database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+        jdbc:
+          batch_size: 50
+          batch_versioned_data: true
+        order_inserts: true
+        order_updates: true
+        generate_statistics: false
+        dialect: org.hibernate.dialect.MySQLDialect
+customer:
+  services:
+    url: ${CUSTOMER_SERVICE_URL}

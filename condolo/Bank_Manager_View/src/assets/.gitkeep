@@ -1,0 +1,10 @@
+# Assets Directory
+
+Este directorio contiene los recursos estáticos de la aplicación como:
+
+- Imágenes
+- Iconos
+- Archivos JSON de configuración
+- Otros recursos estáticos
+
+Los archivos en este directorio serán copiados automáticamente al build de producción.
