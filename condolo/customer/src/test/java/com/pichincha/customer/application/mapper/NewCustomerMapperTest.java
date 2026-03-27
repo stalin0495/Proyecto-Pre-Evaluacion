@@ -35,7 +35,7 @@ class NewCustomerMapperTest {
     }
 
     @Test
-    void testUpdateCustomer_CompletelyNullSource_NoChanges() {
+    void should_keepOriginalValues_when_updatingWithCompletelyNullSource() {
 
         Customer emptyUpdate = Customer.builder().build();
 

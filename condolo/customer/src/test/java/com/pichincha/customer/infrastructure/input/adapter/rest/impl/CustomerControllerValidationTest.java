@@ -43,7 +43,7 @@ class CustomerControllerValidationTest {
     @ParameterizedTest
     @ValueSource(strings = {"", " ", "   ", "123", "User123", "user@domain", "User-Name"})
     @DisplayName("Should reject invalid name formats")
-    void testCreateCustomer_InvalidNameFormats(String invalidName) throws Exception {
+    void should_rejectRequest_when_invalidNameFormatProvided(String invalidName) throws Exception {
         Customer customerWithInvalidName = Customer.builder()
                 .name(invalidName)
                 .gender("Masculino")
@@ -65,7 +65,7 @@ class CustomerControllerValidationTest {
     @ParameterizedTest
     @ValueSource(strings = {"123456789", "12345678901", "abcdefghij", "123456789a", ""})
     @DisplayName("Should reject invalid identification formats")
-    void testCreateCustomer_InvalidIdentificationFormats(String invalidId) throws Exception {
+    void should_rejectRequest_when_invalidIdentificationFormatProvided(String invalidId) throws Exception {
         Customer customerWithInvalidId = Customer.builder()
                 .name("Juan Perez")
                 .gender("Masculino")
@@ -87,7 +87,7 @@ class CustomerControllerValidationTest {
     @ParameterizedTest
     @ValueSource(strings = {"password", "PASSWORD", "12345678", "Password", "Pass123", "password123!", "PASSWORD123!"})
     @DisplayName("Should reject weak password formats")
-    void testCreateCustomer_WeakPasswords(String weakPassword) throws Exception {
+    void should_rejectRequest_when_weakPasswordProvided(String weakPassword) throws Exception {
         Customer customerWithWeakPassword = Customer.builder()
                 .name("Juan Perez")
                 .gender("Masculino")
@@ -109,7 +109,7 @@ class CustomerControllerValidationTest {
 
     @Test
     @DisplayName("Should reject customer with null required fields")
-    void testCreateCustomer_NullRequiredFields() throws Exception {
+    void should_rejectRequest_when_requiredFieldsAreNull() throws Exception {
         Customer customerWithNulls = Customer.builder()
                 .name(null)
                 .gender(null)
@@ -129,7 +129,7 @@ class CustomerControllerValidationTest {
 
     @Test
     @DisplayName("Should reject malformed JSON")
-    void testCreateCustomer_MalformedJson() throws Exception {
+    void should_rejectRequest_when_malformedJsonProvided() throws Exception {
         // Given
         String malformedJson = "{ \"name\": \"Juan\", \"age\": }";
 
@@ -143,7 +143,7 @@ class CustomerControllerValidationTest {
 
     @Test
     @DisplayName("Should reject request without Content-Type")
-    void testCreateCustomer_MissingContentType() throws Exception {
+    void should_rejectRequest_when_contentTypeIsMissing() throws Exception {
         Customer validCustomer = Customer.builder()
                 .name("Juan Perez")
                 .gender("Masculino")
@@ -163,7 +163,7 @@ class CustomerControllerValidationTest {
 
     @Test
     @DisplayName("Should handle empty request body")
-    void testCreateCustomer_EmptyBody() throws Exception {
+    void should_rejectRequest_when_emptyBodyProvided() throws Exception {
         mockMvc.perform(post("/v1/customers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(""))
@@ -175,7 +175,7 @@ class CustomerControllerValidationTest {
     @ParameterizedTest
     @ValueSource(strings = {"Jose Maria", "Ana Sofia", "Luis Alberto", "Carmen Rosa"})
     @DisplayName("Should accept valid Spanish names")
-    void testCreateCustomer_ValidSpanishNames(String validName) throws Exception {
+    void should_acceptRequest_when_validSpanishNameProvided(String validName) throws Exception {
         Customer validCustomer = Customer.builder()
                 .name(validName)
                 .gender("Masculino")
@@ -211,7 +211,7 @@ class CustomerControllerValidationTest {
 
     @Test
     @DisplayName("Should reject customer with invalid age range")
-    void testCreateCustomer_InvalidAge() throws Exception {
+    void should_rejectRequest_when_invalidAgeProvided() throws Exception {
         Customer customerWithInvalidAge = Customer.builder()
                 .name("Test User")
                 .gender("Masculino")
@@ -232,7 +232,7 @@ class CustomerControllerValidationTest {
 
     @Test
     @DisplayName("Should accept customer with maximum valid age")
-    void testCreateCustomer_MaxValidAge() throws Exception {
+    void should_acceptRequest_when_maximumValidAgeProvided() throws Exception {
         Customer validCustomer = Customer.builder()
                 .name("Elena Vasquez")
                 .gender("Femenino")

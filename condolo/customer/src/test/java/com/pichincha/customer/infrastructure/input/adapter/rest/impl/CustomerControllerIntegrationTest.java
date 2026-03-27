@@ -54,7 +54,7 @@ class CustomerControllerIntegrationTest {
     }
 
     @Test
-    void testCreateCustomer_WithSpecialCharactersInName() throws Exception {
+    void should_createCustomer_when_nameHasSpecialCharacters() throws Exception {
         Customer customerRequest = Customer.builder()
                 .name("Jose Maria Fernandez Lopez")
                 .gender("Masculino")
@@ -78,7 +78,7 @@ class CustomerControllerIntegrationTest {
     }
 
     @Test
-    void testCreateCustomer_ServiceThrowsException() throws Exception {
+    void should_throwException_when_serviceFailsOnCreate() throws Exception {
         Customer customerRequest = Customer.builder()
                 .name("Ana Torres")
                 .gender("Femenino")
@@ -104,7 +104,7 @@ class CustomerControllerIntegrationTest {
     }
 
     @Test
-    void testFindCustomerById_NotFound() throws Exception {
+    void should_throwException_when_customerNotFound() throws Exception {
         String nonExistentId = "999";
         when(customerService.findById(nonExistentId))
                 .thenThrow(new RuntimeException("Customer not found"));
@@ -119,7 +119,7 @@ class CustomerControllerIntegrationTest {
     }
 
     @Test
-    void testUpdateCustomer_WithPartialData() throws Exception {
+    void should_updateCustomer_when_partialDataProvided() throws Exception {
         String customerId = "1";
         Customer partialUpdateRequest = Customer.builder()
                 .phone("0999888777")
@@ -150,7 +150,7 @@ class CustomerControllerIntegrationTest {
     }
 
     @Test
-    void testDeleteCustomer_ServiceThrowsException() throws Exception {
+    void should_throwException_when_deleteFails() throws Exception {
         String customerId = "1";
         doThrow(new RuntimeException("Cannot delete customer with active accounts"))
                 .when(customerService).delete(customerId);
@@ -165,7 +165,7 @@ class CustomerControllerIntegrationTest {
     }
 
     @Test
-    void testCreateCustomer_WithMinimumValidData() throws Exception {
+    void should_createCustomer_when_minimumValidDataProvided() throws Exception {
         Customer minimalCustomer = Customer.builder()
                 .name("Pedro")
                 .gender("Masculino")
@@ -187,7 +187,7 @@ class CustomerControllerIntegrationTest {
     }
 
     @Test
-    void testCreateCustomer_WithMaximumAge() throws Exception {
+    void should_createCustomer_when_maximumAgeProvided() throws Exception {
         Customer elderlyCustomer = Customer.builder()
                 .name("Elena Vasquez")
                 .gender("Femenino")
@@ -209,7 +209,7 @@ class CustomerControllerIntegrationTest {
     }
 
     @Test
-    void testCreateCustomer_WithInvalidAge() throws Exception {
+    void should_returnBadRequest_when_invalidAgeProvided() throws Exception {
         Customer customerWithInvalidAge = Customer.builder()
                 .name("Luis Moreno")
                 .gender("Masculino")
@@ -229,7 +229,7 @@ class CustomerControllerIntegrationTest {
     }
 
     @Test
-    void testUpdateCustomer_WithInvalidData() throws Exception {
+    void should_returnBadRequest_when_invalidDataProvided() throws Exception {
         String customerId = "1";
         Customer invalidUpdateRequest = Customer.builder()
                 .name("123Numbers")
@@ -245,7 +245,7 @@ class CustomerControllerIntegrationTest {
     }
 
     @Test
-    void testFindAllCustomers_WithLargePageSize() throws Exception {
+    void should_returnPage_when_largePageSizeRequested() throws Exception {
         Page<Customer> customerPage = new PageImpl<>(List.of(sampleCustomer), PageRequest.of(0, 100), 1);
         when(customerService.findAll(any(PageRequest.class))).thenReturn(customerPage);
 
@@ -260,7 +260,7 @@ class CustomerControllerIntegrationTest {
     }
 
     @Test
-    void testCreateCustomer_WithComplexValidData() throws Exception {
+    void should_createCustomer_when_complexValidDataProvided() throws Exception {
         Customer complexCustomer = Customer.builder()
                 .name("Carlos Eduardo Martinez")
                 .gender("Masculino")
@@ -283,7 +283,7 @@ class CustomerControllerIntegrationTest {
     }
 
     @Test
-    void testUpdateCustomer_Success() throws Exception {
+    void should_updateCustomer_when_validDataProvided() throws Exception {
         String customerId = "1";
         Customer updateRequest = Customer.builder()
                 .name("Maria Updated")

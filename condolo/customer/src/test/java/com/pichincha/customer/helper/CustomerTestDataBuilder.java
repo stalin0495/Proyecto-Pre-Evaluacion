@@ -1,4 +1,4 @@
-package com.pichincha.customer.infrastructure.input.adapter.rest.impl;
+package com.pichincha.customer.helper;
 
 import com.pichincha.customer.domain.Customer;
 

@@ -44,7 +44,7 @@ class PersonUseCaseTest {
     }
 
     @Test
-    void testCreatePerson_Success() {
+    void should_returnCreatedPerson_when_validDataProvided() {
         Person personToCreate = Person.builder()
                 .name("Carlos Rodriguez")
                 .gender("Masculino")
@@ -79,7 +79,7 @@ class PersonUseCaseTest {
     }
 
     @Test
-    void testCreatePerson_DuplicateIdentification_ThrowsValidationException() {
+    void should_throwValidationException_when_identificationAlreadyExists() {
         Person personToCreate = Person.builder()
                 .name("Duplicate User")
                 .identification("0987654321") // Same as existing person
@@ -95,7 +95,7 @@ class PersonUseCaseTest {
     }
 
     @Test
-    void testFindAllPersons_Success() {
+    void should_returnAllPersons_when_requestingList() {
         List<Person> personList = List.of(
                 samplePerson,
                 Person.builder()
@@ -117,7 +117,7 @@ class PersonUseCaseTest {
     }
 
     @Test
-    void testFindPersonById_Success() {
+    void should_returnPerson_when_validIdProvided() {
         String personId = "1";
         when(personOutPort.findById(personId)).thenReturn(samplePerson);
 
@@ -132,11 +132,12 @@ class PersonUseCaseTest {
     }
 
     @Test
-    void testUpdatePerson_Success() {
+    void should_returnUpdatedPerson_when_validDataProvided() {
         String personId = "1";
         Person updateData = Person.builder()
                 .personId(personId)
                 .name("Ana Updated")
+                .identification("0987654321") // Mantener la identificación existente
                 .phone("0999111222")
                 .address("New Address 123")
                 .build();
@@ -170,21 +171,24 @@ class PersonUseCaseTest {
         assertThat(result.getAddress()).isEqualTo("New Address 123");
 
         verify(personOutPort).findById(personId);
-        verify(personOutPort).findByIdentification(existingPerson.getIdentification(), existingPerson.getIdentification());
+        verify(personOutPort).findByIdentification("0987654321", "0987654321");
         verify(personOutPort).save(any(Person.class));
     }
 
     @Test
-    void testDeletePerson_Success() {
+    void should_deletePerson_when_validIdProvided() {
         String personId = "1";
+        
+        when(personOutPort.findById(personId)).thenReturn(samplePerson);
 
         personUseCase.delete(personId);
 
+        verify(personOutPort).findById(personId);
         verify(personOutPort).delete(personId);
     }
 
     @Test
-    void testFindByIdentification_Success() {
+    void should_returnPerson_when_validIdentificationProvided() {
         String identification = "0987654321";
         String identificationUpdated = null;
         when(personOutPort.findByIdentification(identification, identificationUpdated)).thenReturn(samplePerson);
@@ -199,7 +203,7 @@ class PersonUseCaseTest {
     }
 
     @Test
-    void testFindByIdentification_NotFound() {
+    void should_returnNull_when_identificationNotFound() {
         String identification = "9999999999";
         String identificationUpdated = null;
         when(personOutPort.findByIdentification(identification, identificationUpdated)).thenReturn(null);
@@ -212,7 +216,7 @@ class PersonUseCaseTest {
     }
 
     @Test
-    void testValidateUniqueIdentification_Success() {
+    void should_createPerson_when_identificationIsUnique() {
         Person personToCreate = Person.builder()
                 .name("Unique User")
                 .identification("5555555555")

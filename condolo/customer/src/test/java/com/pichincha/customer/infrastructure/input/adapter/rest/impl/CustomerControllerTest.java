@@ -3,6 +3,7 @@ package com.pichincha.customer.infrastructure.input.adapter.rest.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pichincha.customer.application.input.port.CustomerService;
 import com.pichincha.customer.domain.Customer;
+import com.pichincha.customer.helper.CustomerTestDataBuilder;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +47,7 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testCreateCustomer_Success() throws Exception {
+    void should_returnCreatedCustomer_when_validDataProvided() throws Exception {
 
         Customer customerRequest = CustomerTestDataBuilder.customerForCreation();
         when(customerService.create(any(Customer.class))).thenReturn(sampleCustomer);
@@ -66,7 +67,7 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testFindAllCustomers_Success() throws Exception {
+    void should_returnPageOfCustomers_when_requestingAllCustomers() throws Exception {
 
         List<Customer> customerList = List.of(sampleCustomer);
         Page<Customer> customerPage = new PageImpl<>(customerList, PageRequest.of(0, 10), 1);
@@ -89,7 +90,7 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testFindAllCustomers_WithDefaultParams() throws Exception {
+    void should_returnEmptyPage_when_usingDefaultParameters() throws Exception {
 
         Page<Customer> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 10), 0);
         when(customerService.findAll(any(PageRequest.class))).thenReturn(emptyPage);
@@ -106,7 +107,7 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testFindCustomerById_Success() throws Exception {
+    void should_returnCustomerWithoutPassword_when_validIdProvided() throws Exception {
 
         String customerId = "1";
         when(customerService.findById(customerId)).thenReturn(sampleCustomer);
@@ -124,7 +125,7 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testUpdateCustomer_Success() throws Exception {
+    void should_returnUpdatedCustomer_when_validDataProvided() throws Exception {
 
         String customerId = "1";
         Customer updateRequest = CustomerTestDataBuilder.customerForUpdate();
@@ -157,7 +158,7 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testDeleteCustomer_Success() throws Exception {
+    void should_performSoftDelete_when_validCustomerIdProvided() throws Exception {
 
         String customerId = "1";
         doNothing().when(customerService).delete(customerId);
@@ -169,7 +170,7 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testCreateCustomer_ServiceThrowsException() throws Exception {
+    void should_throwException_when_serviceFailsOnCreate() throws Exception {
 
         Customer customerRequest = CustomerTestDataBuilder.validCustomer();
         when(customerService.create(any(Customer.class)))
@@ -188,7 +189,7 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testFindCustomerById_NotFound() throws Exception {
+    void should_throwException_when_customerNotFound() throws Exception {
 
         String nonExistentId = "999";
         when(customerService.findById(nonExistentId))
@@ -205,7 +206,7 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testUpdateCustomer_ServiceThrowsException() throws Exception {
+    void should_throwException_when_serviceFailsOnUpdate() throws Exception {
 
         String customerId = "1";
         Customer updateRequest = CustomerTestDataBuilder.validCustomer();
@@ -226,7 +227,7 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testDeleteCustomer_ServiceThrowsException() throws Exception {
+    void should_throwException_when_serviceFailsOnDelete() throws Exception {
 
         String customerId = "1";
         doThrow(new RuntimeException("Cannot delete customer"))

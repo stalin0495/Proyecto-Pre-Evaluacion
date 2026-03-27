@@ -1,9 +1,8 @@
 package com.pichincha.customer.domain;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.pichincha.customer.domain.common.Constants;
+import com.pichincha.customer.domain.util.Constants;
 import com.pichincha.customer.domain.common.ValidationGroups;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -21,7 +20,7 @@ public class Person {
     private String personId;
 
     @NotBlank(message = Constants.NOT_BLANK, groups = ValidationGroups.Create.class)
-    @Pattern(regexp = "^[A-Za-zÑn]+( [A-Za-zÑñ]+)*$",
+    @Pattern(regexp = "^[A-Za-zÑñ]+( [A-Za-zÑñ]+)*$",
             message = "Name must contain only letters and single spaces between words",
             groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
     private String name;
@@ -29,7 +28,7 @@ public class Person {
     @NotBlank(message = Constants.NOT_BLANK, groups = ValidationGroups.Create.class)
     @Size(min= 1, max = 255, message = "Should not be less than 1 and should not be greater than 255",
             groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
-    @Pattern(regexp = "^[A-Za-zÑn]+( [A-Za-zÑñ]+)*$",
+    @Pattern(regexp = "^[A-Za-zÑñ]+( [A-Za-zÑñ]+)*$",
             message = "Gender must contain only letters and single spaces between words",
             groups = {ValidationGroups.Create.class, ValidationGroups.Update.class})
     private String gender;

@@ -12,5 +12,7 @@ public interface CustomerOutPort {
 
     Customer findById(String id);
 
+    Customer findByCustomerId(String customerId);
+
     void delete(String id);
 }

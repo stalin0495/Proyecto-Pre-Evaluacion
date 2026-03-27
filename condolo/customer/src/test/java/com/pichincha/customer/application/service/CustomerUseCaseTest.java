@@ -1,5 +1,6 @@
 package com.pichincha.customer.application.service;
 
+import com.pichincha.customer.application.exception.ResourceNotFoundException;
 import com.pichincha.customer.application.input.port.PersonService;
 import com.pichincha.customer.application.mapper.NewCustomerMapper;
 import com.pichincha.customer.application.output.port.CustomerOutPort;
@@ -61,7 +62,7 @@ class CustomerUseCaseTest {
     }
 
     @Test
-    void testCreateCustomer_DuplicateIdentification_ThrowsValidationException() {
+    void should_throwValidationException_when_identificationAlreadyRegistered() {
         Customer customerToCreate = Customer.builder()
                 .name("juan perez")
                 .identification("1234567890")
@@ -79,7 +80,7 @@ class CustomerUseCaseTest {
     }
 
     @Test
-    void testFindAllCustomers_Success() {
+    void should_returnPageOfCustomers_when_requestingAll() {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Customer> customerPage = new PageImpl<>(List.of(sampleCustomer), pageable, 1);
         when(customerOutPort.findAll(pageable)).thenReturn(customerPage);
@@ -95,7 +96,7 @@ class CustomerUseCaseTest {
     }
 
     @Test
-    void testFindCustomerById_Success() {
+    void should_returnCustomer_when_validIdProvided() {
         String customerId = "1";
         when(customerOutPort.findById(customerId)).thenReturn(sampleCustomer);
 
@@ -109,7 +110,7 @@ class CustomerUseCaseTest {
     }
 
     @Test
-    void testUpdateCustomer_Success() {
+    void should_returnUpdatedCustomer_when_validDataProvided() {
         String customerId = "1";
         Customer updateData = Customer.builder()
                 .personId(customerId)
@@ -133,7 +134,7 @@ class CustomerUseCaseTest {
                 .build();
 
         when(customerOutPort.findById(customerId)).thenReturn(existingCustomer);
-        when(personService.findByIdentification(anyString(), anyString())).thenThrow(new RuntimeException("Not found"));
+        when(personService.findByIdentification(anyString(), anyString())).thenThrow(new ResourceNotFoundException("Not found"));
         when(customerOutPort.save(any(Customer.class))).thenReturn(updatedCustomer);
 
         Customer result = customerUseCase.update(updateData);
@@ -146,18 +147,18 @@ class CustomerUseCaseTest {
         verify(customerOutPort).findById(customerId);
         verify(customerMapper).updateCustomer(updateData, existingCustomer);
         verify(personService).findByIdentification(existingCustomer.getIdentification(), existingCustomer.getIdentification());
-        verify(customerOutPort).save(updateData);
+        verify(customerOutPort).save(existingCustomer);
     }
 
     @Test
-    void testValidateIdentification_UniqueIdentification_NoException() {
+    void should_createCustomer_when_identificationIsUnique() {
         Customer customer = Customer.builder()
                 .identification("9999999999")
                 .name("New Customer")
                 .password("Password123!")
                 .build();
 
-        when(personService.findByIdentification(anyString(), any())).thenThrow(new RuntimeException("Not found"));
+        when(personService.findByIdentification(anyString(), any())).thenThrow(new ResourceNotFoundException("Not found"));
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(customerOutPort.save(any(Customer.class))).thenReturn(customer);
 
@@ -167,7 +168,7 @@ class CustomerUseCaseTest {
     }
 
     @Test
-    void testPasswordEncoding() {
+    void should_encodePassword_when_creatingCustomer() {
         String plainPassword = "MySecretPassword123!";
         Customer customer = Customer.builder()
                 .name("test user")
@@ -175,7 +176,7 @@ class CustomerUseCaseTest {
                 .password(plainPassword)
                 .build();
 
-        when(personService.findByIdentification(anyString(), any())).thenThrow(new RuntimeException("Not found"));
+        when(personService.findByIdentification(anyString(), any())).thenThrow(new ResourceNotFoundException("Not found"));
         when(passwordEncoder.encode(plainPassword)).thenReturn("$2a$10$encodedPasswordHash");
         when(customerOutPort.save(any(Customer.class))).thenReturn(customer);
 

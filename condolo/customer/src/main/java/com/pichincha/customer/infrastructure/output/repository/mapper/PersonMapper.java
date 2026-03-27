@@ -1,9 +1,14 @@
 package com.pichincha.customer.infrastructure.output.repository.mapper;
 
 import com.pichincha.customer.infrastructure.output.repository.entity.Person;
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingConstants;
 
-@Mapper(componentModel = "spring", uses = PersonMapper.class)
+@Mapper(
+    componentModel = MappingConstants.ComponentModel.SPRING,
+    builder = @Builder(disableBuilder = true)
+)
 public interface PersonMapper {
 
     com.pichincha.customer.domain.Person convertToDomain(Person entity);
